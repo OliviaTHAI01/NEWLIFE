@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next.js Discord Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .info {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .note {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #5865F2;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(88, 101, 242, 0.4);
+        }
+        
+        .steps {
+            text-align: left;
+            margin-top: 20px;
+            color: #555;
+        }
+        
+        .steps h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .steps ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Next.js Discord Login</h1>
+        <p class="info">
+            เว็บแอปพลิเคชัน Next.js พร้อมระบบ Login ด้วย Discord OAuth
+        </p>
+        
+        <div class="note">
+            <strong>หมายเหตุ:</strong> Next.js ใช้โครงสร้าง App Router ซึ่งไม่ต้องการไฟล์ index.html แบบดั้งเดิม<br>
+            หน้าแรกของแอปพลิเคชันอยู่ที่ <code>app/page.tsx</code>
+        </div>
+        
+        <a href="http://localhost:3000" class="btn">ไปที่แอปพลิเคชัน</a>
+        
+        <div class="steps">
+            <h3>📋 วิธีเริ่มใช้งาน:</h3>
+            <ol>
+                <li>ติดตั้ง dependencies: <code>npm install</code></li>
+                <li>สร้างไฟล์ <code>.env.local</code> และเพิ่ม Discord OAuth credentials</li>
+                <li>รันแอปพลิเคชัน: <code>npm run dev</code></li>
+                <li>เปิดเบราว์เซอร์ไปที่ <code>http://localhost:3000</code></li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
