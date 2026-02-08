@@ -16,7 +16,7 @@ export default function LoginPage() {
       if (errorParam === 'oauth_failed' || errorParam === 'token_failed') {
         setError('Invalid OAuth2 redirect_uri - กรุณาตรวจสอบการตั้งค่าใน Discord Developer Portal')
       } else if (errorParam === 'config') {
-        setError('กรุณาตั้งค่า DISCORD_CLIENT_ID และ DISCORD_CLIENT_SECRET ในไฟล์ .env.local')
+        setError('กรุณาตั้งค่า DISCORD_CLIENT_ID และ DISCORD_CLIENT_SECRET ใน Environment Variables ของ hosting platform')
       } else {
         setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
       }

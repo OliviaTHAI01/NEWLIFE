@@ -55,16 +55,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const clientId = process.env.DISCORD_CLIENT_ID
-    const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
+    // Check environment variables (try multiple possible names)
+    const clientId = process.env.DISCORD_CLIENT_ID || process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
+    const redirectUri = process.env.DISCORD_REDIRECT_URI || process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
     
     console.log('[Discord Auth] Environment check:', {
       clientId: clientId ? 'SET' : 'MISSING',
       redirectUri: redirectUri,
+      allEnvKeys: Object.keys(process.env).filter(key => key.includes('DISCORD')),
     })
     
     if (!clientId) {
       console.error('[Discord Auth] Discord Client ID not configured')
+      console.error('[Discord Auth] Available env vars:', Object.keys(process.env).filter(key => key.includes('DISCORD')))
       const baseUrl = getBaseUrl(request)
       console.log('[Discord Auth] Redirecting to login with config error')
       return NextResponse.redirect(`${baseUrl}/login?error=config`, { status: 302 })

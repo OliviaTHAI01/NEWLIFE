@@ -43,11 +43,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/login?error=no_code`)
   }
 
-  const clientId = process.env.DISCORD_CLIENT_ID
-  const clientSecret = process.env.DISCORD_CLIENT_SECRET
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
+  // Check environment variables (try multiple possible names)
+  const clientId = process.env.DISCORD_CLIENT_ID || process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
+  const clientSecret = process.env.DISCORD_CLIENT_SECRET || process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
+
+  console.log('[Discord Callback] Environment check:', {
+    clientId: clientId ? 'SET' : 'MISSING',
+    clientSecret: clientSecret ? 'SET' : 'MISSING',
+    redirectUri: redirectUri,
+  })
 
   if (!clientId || !clientSecret) {
+    console.error('[Discord Callback] Missing environment variables')
+    console.error('[Discord Callback] Available env vars:', Object.keys(process.env).filter(key => key.includes('DISCORD')))
     return NextResponse.redirect(`${baseUrl}/login?error=config`)
   }
 
