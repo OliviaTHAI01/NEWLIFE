@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 30
+export const fetchCache = 'force-no-store'
 
 function getBaseUrl(request: NextRequest | null): string {
   // Use environment variable if available
@@ -36,10 +37,18 @@ function getBaseUrl(request: NextRequest | null): string {
 }
 
 export async function GET(request: NextRequest) {
+  // Log request for debugging
+  console.log('[Discord Auth] Request received:', {
+    url: request?.url,
+    method: request?.method,
+    hasClientId: !!process.env.DISCORD_CLIENT_ID,
+    hasRedirectUri: !!process.env.DISCORD_REDIRECT_URI,
+  })
+
   try {
     // Ensure request is available
     if (!request) {
-      console.error('Request object is null')
+      console.error('[Discord Auth] Request object is null')
       return NextResponse.json(
         { error: 'Invalid request' },
         { status: 400 }
@@ -49,9 +58,15 @@ export async function GET(request: NextRequest) {
     const clientId = process.env.DISCORD_CLIENT_ID
     const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
     
+    console.log('[Discord Auth] Environment check:', {
+      clientId: clientId ? 'SET' : 'MISSING',
+      redirectUri: redirectUri,
+    })
+    
     if (!clientId) {
-      console.error('Discord Client ID not configured')
+      console.error('[Discord Auth] Discord Client ID not configured')
       const baseUrl = getBaseUrl(request)
+      console.log('[Discord Auth] Redirecting to login with config error')
       return NextResponse.redirect(`${baseUrl}/login?error=config`, { status: 302 })
     }
 

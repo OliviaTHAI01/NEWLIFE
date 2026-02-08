@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 30
+export const fetchCache = 'force-no-store'
 
 function getBaseUrl(request: NextRequest): string {
   // Use environment variable if available
