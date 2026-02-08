@@ -33,6 +33,8 @@ export default function DashboardPage() {
   const [statusUpdate, setStatusUpdate] = useState({ status: 'pending', notes: '' })
   const [error, setError] = useState<string | null>(null)
   const [debugInfo, setDebugInfo] = useState<any>(null)
+  const [showProfile, setShowProfile] = useState(false)
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -84,6 +86,14 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error loading applications:', error)
+    }
+  }
+
+  const copyDiscordId = () => {
+    if (user?.id) {
+      navigator.clipboard.writeText(user.id)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -210,10 +220,18 @@ export default function DashboardPage() {
                 src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
                 alt={user.username}
                 className="user-avatar"
+                onClick={() => setShowProfile(true)}
+                style={{ cursor: 'pointer' }}
               />
             )}
             <div className="user-info">
-              <span className="username">{user?.username}</span>
+              <span 
+                className="username"
+                onClick={() => setShowProfile(true)}
+                style={{ cursor: 'pointer' }}
+              >
+                {user?.username}
+              </span>
               <button onClick={() => {
                 fetch('/api/auth/logout', { method: 'POST' })
                 router.push('/login')
@@ -359,6 +377,55 @@ export default function DashboardPage() {
       <footer className="main-footer">
         <p>&copy; 2024 NEW LIFE Roleplay. All rights reserved.</p>
       </footer>
+
+      {showProfile && user && (
+        <div className="modal-overlay" onClick={() => setShowProfile(false)}>
+          <div className="modal-content profile-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>โปรไฟล์</h2>
+              <button className="modal-close" onClick={() => setShowProfile(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="profile-avatar-section">
+                {user.avatar && (
+                  <img
+                    src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+                    alt={user.username}
+                    className="profile-avatar-large"
+                  />
+                )}
+                <h3>{user.username}</h3>
+                {user.discriminator && user.discriminator !== '0' && (
+                  <p className="discriminator">#{user.discriminator}</p>
+                )}
+              </div>
+
+              <div className="profile-info-section">
+                <div className="info-item">
+                  <label>Discord ID</label>
+                  <div className="discord-id-container">
+                    <code className="discord-id">{user.id}</code>
+                    <button 
+                      onClick={copyDiscordId}
+                      className={`copy-button ${copied ? 'copied' : ''}`}
+                      title="คัดลอก Discord ID"
+                    >
+                      {copied ? '✓ คัดลอกแล้ว' : '📋 คัดลอก'}
+                    </button>
+                  </div>
+                </div>
+
+                {user.email && (
+                  <div className="info-item">
+                    <label>Email</label>
+                    <p>{user.email}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
