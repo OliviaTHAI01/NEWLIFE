@@ -68,7 +68,7 @@ export default function LoginPage() {
                   <li>เลือก Application ของคุณ</li>
                   <li>ไปที่ <strong>OAuth2 → General</strong></li>
                   <li>ในส่วน <strong>Redirects</strong> เพิ่ม URL นี้:</li>
-                  <li className="code-block">http://localhost:3000/api/auth/discord/callback</li>
+                  <li className="code-block">https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback</li>
                   <li>กด <strong>Save Changes</strong></li>
                 </ol>
               </div>

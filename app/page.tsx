@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 // Disable static generation
 export const dynamic = 'force-dynamic'
@@ -111,7 +112,7 @@ export default function Home() {
             </div>
             <h3>LFM</h3>
             <p>Illegal Faction Management : NEW LIFE RP</p>
-            <button className="card-button">View LFM</button>
+            <Link href="/lfm" className="card-button">View LFM</Link>
           </div>
 
           <div className="content-card">

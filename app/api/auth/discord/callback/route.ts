@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.DISCORD_CLIENT_ID
   const clientSecret = process.env.DISCORD_CLIENT_SECRET
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback'
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
 
   if (!clientId || !clientSecret) {
     return NextResponse.redirect(new URL('/?error=config', request.url))
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     if (!tokenData.access_token) {
       console.error('Discord token error:', tokenData)
       const errorMessage = tokenData.error_description || tokenData.error || 'token_failed'
-      return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(errorMessage)}`, request.url))
+      return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorMessage)}`, request.url))
     }
 
     // Get user info from Discord
@@ -69,6 +69,6 @@ export async function GET(request: NextRequest) {
     return response
   } catch (error) {
     console.error('Discord OAuth error:', error)
-    return NextResponse.redirect(new URL('/?error=oauth_failed', request.url))
+    return NextResponse.redirect(new URL('/login?error=oauth_failed', request.url))
   }
 }
