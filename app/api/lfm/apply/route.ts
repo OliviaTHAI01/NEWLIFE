@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { getPool } from '../../../../lib/db'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -99,32 +99,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create submission directory
-    const timestamp = Date.now()
-    const submissionDir = join(process.cwd(), 'public', 'submissions', `faction_${timestamp}`)
+    // Save to database
+    const pool = getPool()
+    const connection = await pool.getConnection()
     
-    // In production, you would save files to a proper storage solution
-    // For now, we'll just log the submission data
-    console.log('Faction Application Submission:', {
-      email,
-      headFactionName,
-      factionName,
-      factionStory,
-      members,
-      hoodLocation,
-      hoodImagesCount: hoodImages.length,
-      clothingFilesCount: clothingFiles.length,
-      timestamp
-    })
+    try {
+      // Insert faction application
+      const [result] = await connection.execute(
+        `INSERT INTO factions 
+         (email, head_faction_name, faction_name, faction_story, members, hood_location, status) 
+         VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+        [email, headFactionName, factionName, factionStory, members, hoodLocation]
+      ) as any
 
-    // TODO: Save files to storage (S3, local storage, etc.)
-    // TODO: Send notification email to staff
-    // TODO: Store submission in database
+      const factionId = result.insertId
 
-    return NextResponse.json({
-      success: true,
-      message: 'ส่งคำขอสำเร็จ กรุณารอการตรวจสอบจาก Staff'
-    })
+      // TODO: Save files to storage (S3, local storage, etc.) and store file paths
+      // For now, we'll just log the file information
+      console.log('Faction Application Submission:', {
+        factionId,
+        email,
+        headFactionName,
+        factionName,
+        hoodImagesCount: hoodImages.length,
+        clothingFilesCount: clothingFiles.length,
+      })
+
+      // TODO: Save files and insert file paths into faction_files table
+      // Example:
+      // for (const file of hoodImages) {
+      //   const filePath = await saveFile(file, 'hood_image')
+      //   await connection.execute(
+      //     `INSERT INTO faction_files (faction_id, file_type, file_path, file_name, file_size) 
+      //      VALUES (?, 'hood_image', ?, ?, ?)`,
+      //     [factionId, filePath, file.name, file.size]
+      //   )
+      // }
+
+      await connection.commit()
+
+      return NextResponse.json({
+        success: true,
+        message: 'ส่งคำขอสำเร็จ กรุณารอการตรวจสอบจาก Staff',
+        factionId
+      })
+    } catch (dbError: any) {
+      await connection.rollback()
+      console.error('Database error:', dbError)
+      throw dbError
+    } finally {
+      connection.release()
+    }
   } catch (error) {
     console.error('Faction application error:', error)
     return NextResponse.json(

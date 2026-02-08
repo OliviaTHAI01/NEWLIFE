@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readdir, readFile } from 'fs/promises'
-import { join } from 'path'
+import { getPool } from '../../../../lib/db'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -40,38 +39,40 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // TODO: Replace with database query when database is set up
-    // For now, return empty array or mock data
-    const submissionsDir = join(process.cwd(), 'public', 'submissions')
-    
-    try {
-      const folders = await readdir(submissionsDir, { withFileTypes: true })
-      const applications = await Promise.all(
-        folders
-          .filter(folder => folder.isDirectory() && folder.name.startsWith('faction_'))
-          .map(async (folder) => {
-            try {
-              const dataFile = join(submissionsDir, folder.name, 'data.json')
-              const data = await readFile(dataFile, 'utf-8')
-              return {
-                id: folder.name,
-                ...JSON.parse(data),
-                submittedAt: new Date(parseInt(folder.name.split('_')[1])).toISOString()
-              }
-            } catch {
-              return {
-                id: folder.name,
-                submittedAt: new Date(parseInt(folder.name.split('_')[1])).toISOString()
-              }
-            }
-          })
-      )
-      
-      return NextResponse.json({ applications }, { status: 200 })
-    } catch (error) {
-      // Directory doesn't exist or empty
-      return NextResponse.json({ applications: [] }, { status: 200 })
-    }
+    // Get applications from database
+    const pool = getPool()
+    const [rows] = await pool.execute(
+      `SELECT 
+        id,
+        email,
+        head_faction_name as headFactionName,
+        faction_name as factionName,
+        faction_story as factionStory,
+        members,
+        hood_location as hoodLocation,
+        status,
+        notes,
+        submitted_at as submittedAt,
+        updated_at as updatedAt
+       FROM factions 
+       ORDER BY submitted_at DESC`
+    ) as any
+
+    const applications = rows.map((row: any) => ({
+      id: row.id.toString(),
+      email: row.email,
+      headFactionName: row.headFactionName,
+      factionName: row.factionName,
+      factionStory: row.factionStory,
+      members: row.members,
+      hoodLocation: row.hoodLocation,
+      status: row.status,
+      notes: row.notes,
+      submittedAt: row.submittedAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString()
+    }))
+
+    return NextResponse.json({ applications }, { status: 200 })
   } catch (error) {
     console.error('Error in /api/admin/factions:', error)
     return NextResponse.json(
@@ -110,17 +111,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Update in database when database is set up
-    // For now, just return success
-    console.log('Application status update:', { applicationId, status, notes })
+    // Update status in database
+    const pool = getPool()
+    const connection = await pool.getConnection()
+    
+    try {
+      await connection.execute(
+        `UPDATE factions 
+         SET status = ?, notes = ? 
+         WHERE id = ?`,
+        [status, notes || null, applicationId]
+      )
 
-    return NextResponse.json({
-      success: true,
-      message: 'Application status updated successfully',
-      applicationId,
-      status,
-      notes
-    }, { status: 200 })
+      await connection.commit()
+
+      return NextResponse.json({
+        success: true,
+        message: 'Application status updated successfully',
+        applicationId,
+        status,
+        notes
+      }, { status: 200 })
+    } catch (dbError: any) {
+      await connection.rollback()
+      console.error('Database update error:', dbError)
+      throw dbError
+    } finally {
+      connection.release()
+    }
   } catch (error) {
     console.error('Error updating application status:', error)
     return NextResponse.json(
