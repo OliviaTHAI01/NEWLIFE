@@ -2,12 +2,42 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+function getBaseUrl(request: NextRequest): string {
+  // Use environment variable if available
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL
+  }
+  
+  // Use DISCORD_REDIRECT_URI base if available
+  const redirectUri = process.env.DISCORD_REDIRECT_URI
+  if (redirectUri) {
+    try {
+      const url = new URL(redirectUri)
+      return `${url.protocol}//${url.host}`
+    } catch (e) {
+      // Fall through to header-based detection
+    }
+  }
+  
+  // Fallback: use request headers
+  const host = request.headers.get('host')
+  const protocol = request.headers.get('x-forwarded-proto') || 'https'
+  
+  if (host) {
+    return `${protocol}://${host}`
+  }
+  
+  // Final fallback
+  return 'https://khaki-gnat-768759.hostingersite.com'
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const code = searchParams.get('code')
+  const baseUrl = getBaseUrl(request)
 
   if (!code) {
-    return NextResponse.redirect(new URL('/?error=no_code', request.url))
+    return NextResponse.redirect(`${baseUrl}/login?error=no_code`)
   }
 
   const clientId = process.env.DISCORD_CLIENT_ID
@@ -15,7 +45,7 @@ export async function GET(request: NextRequest) {
   const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback'
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL('/?error=config', request.url))
+    return NextResponse.redirect(`${baseUrl}/login?error=config`)
   }
 
   try {
@@ -39,7 +69,7 @@ export async function GET(request: NextRequest) {
     if (!tokenData.access_token) {
       console.error('Discord token error:', tokenData)
       const errorMessage = tokenData.error_description || tokenData.error || 'token_failed'
-      return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorMessage)}`, request.url))
+      return NextResponse.redirect(`${baseUrl}/login?error=${encodeURIComponent(errorMessage)}`)
     }
 
     // Get user info from Discord
@@ -52,7 +82,7 @@ export async function GET(request: NextRequest) {
     const userData = await userResponse.json()
 
     // Create response and set cookie
-    const response = NextResponse.redirect(new URL('/', request.url))
+    const response = NextResponse.redirect(`${baseUrl}/`)
     
     // Store user data in cookie (in production, use httpOnly and secure cookies)
     response.cookies.set('discord_user', JSON.stringify({
@@ -69,6 +99,6 @@ export async function GET(request: NextRequest) {
     return response
   } catch (error) {
     console.error('Discord OAuth error:', error)
-    return NextResponse.redirect(new URL('/login?error=oauth_failed', request.url))
+    return NextResponse.redirect(`${baseUrl}/login?error=oauth_failed`)
   }
 }

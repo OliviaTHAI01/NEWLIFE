@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import '../page.css'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(true)
@@ -42,40 +41,40 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="container">
-        <div className="card">
-          <div className="loading">Loading...</div>
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-loading">Loading...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container">
-      <div className="card">
+    <div className="login-container">
+      <div className="login-card">
         <h1>Next.js Discord Login</h1>
-        <p className="description">
+        <p className="login-description">
           Sign in with your Discord account to continue
         </p>
         {error && (
-          <div className="error-message">
+          <div className="login-error-message">
             <strong>⚠️ {error}</strong>
             {error.includes('redirect_uri') && (
-              <div className="error-help">
+              <div className="login-error-help">
                 <p><strong>วิธีแก้ไข:</strong></p>
                 <ol>
                   <li>ไปที่ <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer">Discord Developer Portal</a></li>
                   <li>เลือก Application ของคุณ</li>
                   <li>ไปที่ <strong>OAuth2 → General</strong></li>
                   <li>ในส่วน <strong>Redirects</strong> เพิ่ม URL นี้:</li>
-                  <li className="code-block">https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback</li>
+                  <li className="login-code-block">https://khaki-gnat-768759.hostingersite.com/api/auth/discord/callback</li>
                   <li>กด <strong>Save Changes</strong></li>
                 </ol>
               </div>
             )}
           </div>
         )}
-        <a href="/api/auth/discord" className="discord-btn">
+        <a href="/api/auth/discord" className="login-discord-btn">
           <svg
             width="20"
             height="20"

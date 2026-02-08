@@ -23,6 +23,120 @@ a {
   text-decoration: none;
 }
 
+/* Login Page Styles */
+.login-container {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+}
+
+.login-card h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.login-description {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+.login-discord-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #5865F2;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.login-discord-btn:hover {
+  background: #4752C4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(88, 101, 242, 0.4);
+}
+
+.login-discord-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.login-loading {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.login-error-message {
+  background: #fee;
+  border: 2px solid #fcc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #c33;
+  text-align: left;
+}
+
+.login-error-message strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.login-error-help {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #fcc;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.login-error-help p {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.login-error-help ol {
+  margin-left: 20px;
+  line-height: 1.8;
+}
+
+.login-error-help a {
+  color: #5865F2;
+  text-decoration: underline;
+}
+
+.login-code-block {
+  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  margin: 8px 0;
+  color: #333;
+  word-break: break-all;
+}
+
 /* Index Page Styles */
 .index-container {
   min-height: 100vh;
