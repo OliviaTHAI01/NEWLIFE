@@ -64,6 +64,12 @@ export async function GET(request: NextRequest) {
       }),
     })
 
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text()
+      console.error('Discord token response error:', tokenResponse.status, errorText)
+      return NextResponse.redirect(`${baseUrl}/login?error=token_exchange_failed`)
+    }
+
     const tokenData = await tokenResponse.json()
 
     if (!tokenData.access_token) {
@@ -79,7 +85,18 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    if (!userResponse.ok) {
+      const errorText = await userResponse.text()
+      console.error('Discord user response error:', userResponse.status, errorText)
+      return NextResponse.redirect(`${baseUrl}/login?error=user_fetch_failed`)
+    }
+
     const userData = await userResponse.json()
+
+    if (!userData.id || !userData.username) {
+      console.error('Invalid user data from Discord:', userData)
+      return NextResponse.redirect(`${baseUrl}/login?error=invalid_user_data`)
+    }
 
     // Create response and set cookie
     const response = NextResponse.redirect(`${baseUrl}/`)
@@ -94,11 +111,18 @@ export async function GET(request: NextRequest) {
     }), {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
     })
 
     return response
   } catch (error) {
     console.error('Discord OAuth error:', error)
+    // Log detailed error for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
     return NextResponse.redirect(`${baseUrl}/login?error=oauth_failed`)
   }
 }
